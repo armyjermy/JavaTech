@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#map {
+height: 400px;
+width 100%;
+}
+</style>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="/metolib-master/lib/metolib-combined-1.1.10-min.js"></script>
+<meta charset="ISO-8859-1">
+<title>Veikko 3.0</title>
+</head>
+<body>
+<div id="app">  
+  <div id="Saa">
+  Lämpötila on: {{ saa.temperature }} astetta <br></br>
+  Tuulen nopeus on: {{ saa.windSpeed }} metriä sekunnissa <br></br>
+  <button id="updateSaaButton">Update</button>
+  </div>
+  
+  <div id="HelloVeikko">
+  {{ helloveikko.hello }} <button id="updateHelloVeikkoButton">Update</button>
+  </div>
+  
+  <div id="VeikonVinkit">
+  {{ veikonvinkit.vinkki }} <button id="updateVeikonVinkitButton">Update</button>
+  </div>
+</div>
+<div id="map"></div>
+<script>
+function seekanddestroy(resource, destination){
+	var httpRequest = new XMLHttpRequest();
+	  httpRequest.onreadystatechange = function () {
+	  	if (httpRequest.readyState === XMLHttpRequest.DONE) {
+	  		if (httpRequest.status === 200) {
+	  			destination(JSON.parse(httpRequest.responseText))
+	  
+	  		}
+	  	}
+	  	
+	}
+	  httpRequest.open('GET', '/veikkolol/veikko/'+resource);
+	  httpRequest.send();
+}
+
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    saa: {"temperature": 10, "windSpeed": 10},
+    helloveikko: {"hello": "Heippa!"},
+    veikonvinkit: {"vinkki": "Veikko of Things"},
+  },
+  mounted: function() {
+	  document.getElementById("updateSaaButton").onclick=function(){
+		  seekanddestroy("saa", function(response) {
+		  	app.saa = response
+		  })
+	  }
+	  document.getElementById("updateHelloVeikkoButton").onclick=function(){
+	  	seekanddestroy("helloveikko", function(response) {
+		  app.helloveikko = response
+	    })
+      }
+	  document.getElementById("updateVeikonVinkitButton").onclick=function(){
+  	  	seekanddestroy("veikonvinkit", function(response) {
+		  app.veikonvinkit = response
+        })
+      }
+	} 	
+})
+</script>
+<script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 8
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbmqXpdqpwy2tUS0KP384LcKX74vC_ekE&callback=initMap"
+    async defer></script>
+</body>
+</html>
